@@ -52,3 +52,30 @@ func StrArrToInts(strs []string) (ints []int) {
 	}
 	return ints
 }
+
+func RemoveFirst[T comparable](arr []T, toRemove T) []T {
+	for i, el := range arr {
+		if el == toRemove {
+			return append(arr[:i], arr[i+1:]...)
+		}
+	}
+	return arr
+}
+
+func RemoveAllStrArr(arr []string, toRemove string) (newArr []string) {
+	for _, el := range arr {
+		if el != toRemove {
+			newArr = append(newArr, el)
+		}
+	}
+	return newArr
+}
+
+func AllInStrArr(arr []string, val string) bool {
+	for _, arrElement := range arr {
+		if arrElement != val {
+			return false
+		}
+	}
+	return true
+}
