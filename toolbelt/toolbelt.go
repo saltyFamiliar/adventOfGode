@@ -3,6 +3,7 @@ package toolbelt
 import (
 	"bufio"
 	"fmt"
+	"github.com/fatih/color"
 	"log"
 	"os"
 	"strconv"
@@ -34,10 +35,13 @@ func TestPart(partFunc func([]string) int, dirPath string, wanted int) {
 	inputPath := dirPath + "/input.txt"
 	testResult := partFunc(FileToLines(testPath))
 	if testResult == wanted {
-		fmt.Println("Test case passed!")
-		fmt.Println("Result: ", partFunc(FileToLines(inputPath)))
+		passStyle := color.New(color.FgGreen, color.Bold)
+		passStyle.Println("Test case passed!")
+		fmt.Println("Input Result:", partFunc(FileToLines(inputPath)))
 	} else {
-		fmt.Println("Test case failed!\nResult:", testResult)
+		failStyle := color.New(color.FgRed, color.Bold)
+		failStyle.Println("Test case failed!")
+		fmt.Println("Test Result:", testResult)
 	}
 }
 
