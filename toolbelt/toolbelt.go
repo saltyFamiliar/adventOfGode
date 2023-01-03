@@ -83,3 +83,24 @@ func AllInStrArr(arr []string, val string) bool {
 	}
 	return true
 }
+
+func StrArrToIntMap(arr []string) map[int]int {
+	result := make(map[int]int)
+	for _, digit := range arr {
+		digitInt, err := strconv.Atoi(digit)
+		if err != nil {
+			fmt.Println("Error converting digit to int")
+		}
+		result[digitInt] += 1
+	}
+
+	return result
+}
+
+func MapValSum[T comparable](_map map[T]int) (sum int) {
+	for _, val := range _map {
+		sum += val
+	}
+
+	return sum
+}
