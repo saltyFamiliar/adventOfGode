@@ -1,12 +1,12 @@
 package main
 
 import (
-	"adventOfGode/2021/four"
+	"adventOfGode/2021/seven"
 	"adventOfGode/toolbelt"
 )
 
 func main() {
-	dirPath := "2021/four"
-	toolbelt.TestPart(four.PartOne, dirPath, 4512)
-	toolbelt.TestPart(four.PartTwo, dirPath, 1924)
+	dirPath := "2021/seven"
+	toolbelt.TestPart(seven.PartOne, dirPath, 37)
+	toolbelt.TestPart(seven.PartTwo, dirPath, -1)
 }
