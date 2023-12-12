@@ -2,6 +2,8 @@ package day8
 
 import (
 	"2023/ergo"
+	"2023/mymath"
+	"fmt"
 	"strings"
 )
 
@@ -67,7 +69,7 @@ func advanceAllNodes(dir uint8, nodeMap map[string]node, nodes []node) (allDone 
 	return allDone
 }
 
-func Solve2() (steps int) {
+func Solve2() int {
 	scanner := ergo.GetInputScanner("solutions/day8/input.txt")
 
 	scanner.Scan()
@@ -94,12 +96,22 @@ func Solve2() (steps int) {
 
 	instructionStrLen := len(instructionStr)
 
-	allDone := false
-	for i := 0; !allDone; i++ {
-		currInstruction := instructionStr[i%instructionStrLen]
-		allDone = advanceAllNodes(currInstruction, nodes, startNodes)
-		steps += 1
+	// some directed ai modifications
+	ans := 1
+	for _, startNode := range startNodes {
+		steps := 0
+		isDone := false
+		currNode := startNode
+
+		for !isDone {
+			dir := instructionStr[steps%instructionStrLen]
+			currNode, isDone = currNode.advance(dir, nodes)
+			steps++
+		}
+
+		ans = mymath.Lcm(ans, steps)
+		fmt.Println(startNode.name, "reached end in", steps, "steps")
 	}
 
-	return steps
+	return ans
 }
