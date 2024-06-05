@@ -1,12 +1,12 @@
 package main
 
 import (
-	"2023/solutions/day8"
+	"adventOfGode/2023/solutions/day9"
 	"time"
 )
 
 func main() {
 	startTime := time.Now()
-	println("The answer is ", +day8.Solve2())
+	println("The answer is ", +day9.Solve2())
 	print("Time taken: ", time.Since(startTime))
 }

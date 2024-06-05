@@ -45,16 +45,18 @@ func TestPart(partFunc func([]string) int, dirPath string, wanted int) {
 	}
 }
 
-func StrArrToInts(strs []string) (ints []int) {
-	for _, str := range strs {
-		newInt, err := strconv.Atoi(str)
+func StrArrToInts(ss []string) []int {
+	ns := make([]int, 0, len(ss))
+	for _, s := range ss {
+		n, err := strconv.Atoi(s)
 		if err != nil {
-			log.Println("Found non-numeric value in string array")
-			return ints
+			fmt.Println("occured on line: ", ss)
+			panic(err.Error())
 		}
-		ints = append(ints, newInt)
+		ns = append(ns, n)
 	}
-	return ints
+
+	return ns
 }
 
 func RemoveFirst[T comparable](arr []T, toRemove T) []T {
@@ -75,9 +77,19 @@ func RemoveAllStrArr(arr []string, toRemove string) (newArr []string) {
 	return newArr
 }
 
+// Deprecated. Use generic All
 func AllInStrArr(arr []string, val string) bool {
 	for _, arrElement := range arr {
 		if arrElement != val {
+			return false
+		}
+	}
+	return true
+}
+
+func All[E comparable](s []E, target E) bool {
+	for _, e := range s {
+		if e != target {
 			return false
 		}
 	}

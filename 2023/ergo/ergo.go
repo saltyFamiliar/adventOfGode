@@ -30,6 +30,18 @@ func GetInputScanner(filePath string) *bufio.Scanner {
 	return scanner
 }
 
+func GetFileLines(filepath string) (lines []string) {
+	scanner := GetInputScanner(filepath)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-1]
+	}
+
+	return lines
+}
+
 func EzIntParse(digits string) int {
 	num, err := strconv.Atoi(digits)
 	Must("parse number", err)

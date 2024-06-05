@@ -1,7 +1,7 @@
 package day1
 
 import (
-	"2023/ergo"
+	"adventOfGode/2023/ergo"
 	"bufio"
 	"fmt"
 	"os"

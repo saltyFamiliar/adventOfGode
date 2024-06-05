@@ -1,7 +1,7 @@
 package day4
 
 import (
-	"2023/ergo"
+	"adventOfGode/2023/ergo"
 	"slices"
 	"strings"
 )
