@@ -50,12 +50,10 @@ func StrArrToInts(ss []string) []int {
 	for _, s := range ss {
 		n, err := strconv.Atoi(s)
 		if err != nil {
-			fmt.Println("occured on line: ", ss)
 			panic(err.Error())
 		}
 		ns = append(ns, n)
 	}
-
 	return ns
 }
 
