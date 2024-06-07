@@ -1,118 +1,75 @@
 package day1
 
 import (
-	"adventOfGode/2023/ergo"
-	"bufio"
+	"adventOfGode/toolbelt"
 	"fmt"
-	"os"
 )
 
-func Solve1() (totalValue int) {
-	f, err := os.Open("solutions/day1/input1.txt")
-	ergo.Must("open file", err)
-
-	r := bufio.NewScanner(f)
-	for r.Scan() {
-		byteBuff := r.Bytes()
+func Solve1(lines []string) (totalValue int) {
+	for _, line := range lines {
 		var lineValue int
-
-		for _, b := range byteBuff {
-			d, err := ergo.RuneToIntIfDigit(rune(b))
-			if err != nil {
-				continue
-			}
-
-			lineValue = d * 10
-			break
-		}
-
-		for i := len(byteBuff) - 1; i >= 0; i-- {
-			d, err := ergo.RuneToIntIfDigit(rune(byteBuff[i]))
-			if err != nil {
-				continue
-			}
-
-			lineValue += d
-			break
-		}
-
-		totalValue += lineValue
-		fmt.Println(r.Text())
-		println(lineValue)
-	}
-
-	return totalValue
-}
-
-func Solve2() (totalValue int) {
-	numberNames := []string{
-		"one",
-		"two",
-		"three",
-		"four",
-		"five",
-		"six",
-		"seven",
-		"eight",
-		"nine",
-	}
-
-	shortLen, longLen := 3, 5
-
-	f, err := os.Open("solutions/day1/input1.txt")
-	ergo.Must("open file", err)
-
-	r := bufio.NewScanner(f)
-	for r.Scan() {
-		lineStr := r.Text()
-		fmt.Println(lineStr)
-
-		var lineValue int
-		byteBuff := r.Bytes()
-	firstNum:
-		for i, b := range byteBuff {
-			d, err := ergo.RuneToIntIfDigit(rune(b))
-			if err == nil {
+		for _, b := range line {
+			if d, ok := toolbelt.RuneToIntIfDigit(b); ok {
 				lineValue = d * 10
 				break
 			}
-
-			for j := i + shortLen; j <= i+longLen && j < len(byteBuff); j++ {
-				possibleName := string(byteBuff[i:j])
-				for k, name := range numberNames {
-					if possibleName == name {
-						println(possibleName)
-						lineValue = (k + 1) * 10
-						break firstNum
-					}
-				}
-			}
-
 		}
-
-	secondNum:
-		for i := len(byteBuff) - 1; i >= 0; i-- {
-			d, err := ergo.RuneToIntIfDigit(rune(byteBuff[i]))
-			if err == nil {
+		for i := len(line) - 1; i >= 0; i-- {
+			if d, ok := toolbelt.RuneToIntIfDigit(rune(line[i])); ok {
 				lineValue += d
 				break
 			}
-
-			for j := i + shortLen; j <= i+longLen && j <= len(byteBuff); j++ {
-				possibleName := string(byteBuff[i:j])
-				for k, name := range numberNames {
-					if possibleName == name {
-						println(possibleName)
-						lineValue += k + 1
-						break secondNum
-					}
-				}
-			}
-
 		}
-
 		totalValue += lineValue
-		println(lineValue)
+	}
+	return totalValue
+}
+
+var numberNames = []string{
+	"one",
+	"two",
+	"three",
+	"four",
+	"five",
+	"six",
+	"seven",
+	"eight",
+	"nine",
+}
+var nameLenMin, nameLenMax = 3, 5
+
+func isNumberNameOrDigit(line string, i int) (n int, ok bool) {
+	if d, ok := toolbelt.ByteToIntIfDigit(line[i]); ok {
+		return d, ok
+	}
+	for j := i + nameLenMin; j <= i+nameLenMax && j <= len(line); j++ {
+		possibleName := line[i:j]
+		fmt.Println(possibleName)
+		for d, name := range numberNames {
+			if possibleName == name {
+				return d + 1, true
+			}
+		}
+	}
+	return -1, false
+}
+
+func Solve2(lines []string) (totalValue int) {
+	for _, line := range lines {
+		var lineValue int
+		for i := range line {
+			if n, ok := isNumberNameOrDigit(line, i); ok {
+				lineValue = n * 10
+				break
+			}
+		}
+		for i := len(line) - 1; i >= 0; i-- {
+			if n, ok := isNumberNameOrDigit(line, i); ok {
+				lineValue += n
+				break
+			}
+		}
+		totalValue += lineValue
 	}
 
 	return totalValue

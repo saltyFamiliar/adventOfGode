@@ -1,9 +1,7 @@
 package day9
 
 import (
-	"adventOfGode/2023/ergo"
 	"adventOfGode/toolbelt"
-	"fmt"
 	"strings"
 )
 
@@ -59,20 +57,19 @@ func predictPrevValue(line []int) (prediction int) {
 		prediction = firstDigits[i] - prediction
 	}
 
-	fmt.Println(prediction)
 	return prediction
 }
 
-func Solve1() (answer int) {
-	for _, line := range ergo.GetFileLines("solutions/day9/input.txt") {
+func Solve1(lines []string) (answer int) {
+	for _, line := range lines {
 		lineNumeric := toolbelt.StrArrToInts(strings.Fields(line))
 		answer += predictNextValue(lineNumeric)
 	}
 	return answer
 }
 
-func Solve2() (answer int) {
-	for _, line := range ergo.GetFileLines("solutions/day9/input.txt") {
+func Solve2(lines []string) (answer int) {
+	for _, line := range lines {
 		lineNumeric := toolbelt.StrArrToInts(strings.Fields(line))
 		answer += predictPrevValue(lineNumeric)
 	}

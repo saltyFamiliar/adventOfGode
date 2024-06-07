@@ -1,9 +1,7 @@
 package day2
 
 import (
-	"adventOfGode/2023/ergo"
-	"bufio"
-	"os"
+	"adventOfGode/toolbelt"
 	"strconv"
 	"strings"
 )
@@ -19,7 +17,7 @@ func roundIsValid(draws []string) bool {
 		drawParts := strings.Fields(draw)
 		drawDigit, drawColor := drawParts[0], drawParts[1]
 		drawNum, err := strconv.ParseInt(drawDigit, 10, 0)
-		ergo.Must("parse draw number", err)
+		toolbelt.Must("parse draw number", err)
 		if cubeAmounts[drawColor] < drawNum {
 			return false
 		}
@@ -37,25 +35,15 @@ func gameIsValid(rounds []string) bool {
 	return true
 }
 
-func Solve1() (sumOfPossible int64) {
-	file, err := os.Open("solutions/day2/input.txt")
-	ergo.Must("open file", err)
-
-	fileScanner := bufio.NewScanner(file)
-	for fileScanner.Scan() {
-		line := fileScanner.Text()
+func Solve1(lines []string) (sumOfPossible int) {
+	for gameNum, line := range lines {
+		gameNum += 1
 		lineParts := strings.Split(line, ":")
-
-		gameNumParts := strings.Fields(lineParts[0])
-		gameNum, err := strconv.ParseInt(gameNumParts[1], 10, 0)
-		ergo.Must("get game number", err)
-
 		rounds := strings.Split(lineParts[1], ";")
 		if gameIsValid(rounds) {
 			sumOfPossible += gameNum
 		}
 	}
-
 	return sumOfPossible
 }
 
@@ -65,43 +53,31 @@ func getMinCubeSet(rounds []string) map[string]int64 {
 		"green": 0,
 		"blue":  0,
 	}
-
 	for _, round := range rounds {
 		draws := strings.Split(round, ", ")
 		for _, draw := range draws {
 			drawParts := strings.Fields(draw)
 			drawColor := drawParts[1]
 			drawNum, err := strconv.ParseInt(drawParts[0], 10, 0)
-			ergo.Must("parse number", err)
-
+			toolbelt.Must("parse number", err)
 			if cubeSet[drawColor] < drawNum {
 				cubeSet[drawColor] = drawNum
 			}
-
 		}
 	}
-
 	return cubeSet
 }
 
-func Solve2() (sumOfPowers int64) {
-	file, err := os.Open("solutions/day2/input.txt")
-	ergo.Must("open file", err)
-
-	fileScanner := bufio.NewScanner(file)
-	for fileScanner.Scan() {
-		line := fileScanner.Text()
+func Solve2(lines []string) (sumOfPowers int64) {
+	for _, line := range lines {
 		lineParts := strings.Split(line, ":")
-
 		rounds := strings.Split(lineParts[1], ";")
 		minCubeSet := getMinCubeSet(rounds)
-
-		var power int64 = 1
+		power := int64(1)
 		for _, minAmt := range minCubeSet {
 			power *= minAmt
 		}
 		sumOfPowers += power
 	}
-
 	return sumOfPowers
 }
