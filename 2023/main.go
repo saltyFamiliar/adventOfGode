@@ -25,7 +25,7 @@ func solveFuncAdapter[SF SolverFunc[SI, T], T constraints.Integer, SI SolverInpu
 		lines := aocio.FileToByteMatrix(filePath)
 		result = f(lines)
 	default:
-		panic("unsupported function type")
+		panic("function type unsupported")
 	}
 
 	fmt.Println("The answer is ", result)
