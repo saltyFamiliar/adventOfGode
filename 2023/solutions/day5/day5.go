@@ -1,7 +1,7 @@
 package day5
 
 import (
-	"2023/ergo"
+	"adventOfGode/2023/ergo"
 	"fmt"
 	"slices"
 	"strings"

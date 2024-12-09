@@ -1,60 +1,47 @@
 package toolbelt
 
 import (
-	"bufio"
 	"fmt"
-	"github.com/fatih/color"
-	"log"
-	"os"
 	"strconv"
+	"unicode"
 )
 
-func FileToLines(filePath string) (lines []string) {
-	openFile, err := os.Open(filePath)
+func Must(action string, err error) {
 	if err != nil {
-		log.Println(err)
-	}
-
-	fileScanner := bufio.NewScanner(openFile)
-	fileScanner.Split(bufio.ScanLines)
-
-	for fileScanner.Scan() {
-		lines = append(lines, fileScanner.Text())
-	}
-
-	err = openFile.Close()
-	if err != nil {
-		log.Println(err)
-	}
-
-	return lines
-}
-
-func TestPart(partFunc func([]string) int, dirPath string, wanted int) {
-	testPath := dirPath + "/test.txt"
-	inputPath := dirPath + "/input.txt"
-	testResult := partFunc(FileToLines(testPath))
-	if testResult == wanted {
-		passStyle := color.New(color.FgGreen, color.Bold)
-		passStyle.Println("Test case passed!")
-		fmt.Println("Input Result:", partFunc(FileToLines(inputPath)))
-	} else {
-		failStyle := color.New(color.FgRed, color.Bold)
-		failStyle.Println("Test case failed!")
-		fmt.Println("Test Result:", testResult)
+		panic("failed to " + action + ":" + err.Error())
 	}
 }
 
-func StrArrToInts(strs []string) (ints []int) {
-	for _, str := range strs {
-		newInt, err := strconv.Atoi(str)
+func RuneToIntIfDigit(r rune) (int, bool) {
+	if unicode.IsDigit(r) {
+		return 0, false
+	}
+	return int(r - '0'), true
+}
+
+func ByteToIntIfDigit(b byte) (int, bool) {
+	if b >= '0' && b <= '9' {
+		return int(b - '0'), true
+	}
+	return 0, false
+}
+
+func EzIntParse(digits string) int {
+	num, err := strconv.Atoi(digits)
+	Must("parse number", err)
+	return num
+}
+
+func StrArrToInts(ss []string) []int {
+	ns := make([]int, 0, len(ss))
+	for _, s := range ss {
+		n, err := strconv.Atoi(s)
 		if err != nil {
-			log.Println("Found non-numeric value in string array")
-			return ints
+			panic(err.Error())
 		}
-		ints = append(ints, newInt)
+		ns = append(ns, n)
 	}
-	return ints
+	return ns
 }
 
 func RemoveFirst[T comparable](arr []T, toRemove T) []T {
@@ -75,9 +62,19 @@ func RemoveAllStrArr(arr []string, toRemove string) (newArr []string) {
 	return newArr
 }
 
+// Deprecated. Use generic All
 func AllInStrArr(arr []string, val string) bool {
 	for _, arrElement := range arr {
 		if arrElement != val {
+			return false
+		}
+	}
+	return true
+}
+
+func All[E comparable](s []E, target E) bool {
+	for _, e := range s {
+		if e != target {
 			return false
 		}
 	}

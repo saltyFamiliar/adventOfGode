@@ -1,8 +1,8 @@
 package day8
 
 import (
-	"2023/ergo"
-	"2023/mymath"
+	"adventOfGode/2023/ergo"
+	"adventOfGode/2023/mymath"
 	"fmt"
 	"strings"
 )
