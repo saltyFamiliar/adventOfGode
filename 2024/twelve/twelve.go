@@ -6,89 +6,77 @@ import (
 	"fmt"
 	"maps"
 	"slices"
-	"sort"
 )
 
 func solve(grid Grid) (silver int, gold int) {
 	var fences [][][]Point
-
 	surveyRegion := func(pt Point) (cost int, costBulk int, plotsVisited map[Point]bool) {
-		plotsVisited = make(map[Point]bool)
-		q := []Point{pt}
+		plotsVisited, q, p := make(map[Point]bool), []Point{pt}, pt
 		var perimeter, area, sides int
 		for len(q) > 0 {
-			p := q[0]
-			q = q[1:]
+			p, q = q[0], q[1:]
 			if plotsVisited[p] {
 				continue
 			}
-			area++
-			plotsVisited[p] = true
-			pFences := fences[p.Y][p.X]
-			perimeter += len(pFences)
+			area, plotsVisited[p] = area+1, true
+			perimeter += len(fences[p.Y][p.X])
 			for _, d := range DIRS_CLOCKWISE {
-				if !slices.Contains(pFences, d) && !plotsVisited[p.AddPt(d)] {
+				if !slices.Contains(fences[p.Y][p.X], d) && !plotsVisited[p.AddPt(d)] {
 					q = append(q, p.AddPt(d))
 				}
 			}
 		}
+
 		regionPlots := slices.Collect(maps.Keys(plotsVisited))
 		regionPlots = slices.DeleteFunc(regionPlots, func(pt Point) bool {
 			return len(fences[pt.Y][pt.X]) == 0
 		})
-
-		slices.SortFunc(regionPlots, func(a, b Point) int {
-			if a.Y > b.Y {
-				return 1
-			} else if a.Y < b.Y {
-				return -1
-			}
-			return cmp.Compare(a.X, b.X)
-		})
-		fenceLocsY := make(map[float64][]int)
-		fenceLocsX := make(map[float64][]int)
+		fenceLocsY, fenceLocsX := make(map[float64][]Point), make(map[float64][]Point)
 		for _, pt := range regionPlots {
 			for _, ptFence := range fences[pt.Y][pt.X] {
 				if ptFence.Y != 0 {
 					fLoc := (float64(ptFence.Y) / 2.0) + float64(pt.Y)
 					if _, ok := fenceLocsY[fLoc]; ok {
-						fenceLocsY[fLoc] = append(fenceLocsY[fLoc], pt.X)
+						fenceLocsY[fLoc] = append(fenceLocsY[fLoc], pt) //pt.X
 					} else {
-						fenceLocsY[fLoc] = []int{pt.X}
+						fenceLocsY[fLoc] = []Point{pt} //pt.X
 					}
 				}
 				if ptFence.X != 0 {
 					fLoc := (float64(ptFence.X) / 2.0) + float64(pt.X)
 					if _, ok := fenceLocsX[fLoc]; ok {
-						fenceLocsX[fLoc] = append(fenceLocsX[fLoc], pt.Y)
+						fenceLocsX[fLoc] = append(fenceLocsX[fLoc], pt) //pt.Y
 					} else {
-						fenceLocsX[fLoc] = []int{pt.Y}
+						fenceLocsX[fLoc] = []Point{pt} //pt.Y
 					}
 				}
 			}
 		}
 
 		for y, _ := range fenceLocsY {
-			sort.Ints(fenceLocsY[y])
-			startX := -2
-			for _, x := range fenceLocsY[y] {
-				if x != startX+1 && startX != x {
+			slices.SortFunc(fenceLocsY[y], func(a, b Point) int {
+				return cmp.Compare(a.X, b.X)
+			})
+			prevPoint := Point{Y: -2, X: -2}
+			for _, pt := range fenceLocsY[y] {
+				if pt.X != prevPoint.X+1 || pt.Y != prevPoint.Y {
 					sides++
 				}
-				startX = x
+				prevPoint = pt
 			}
 		}
 		for x, _ := range fenceLocsX {
-			sort.Ints(fenceLocsX[x])
-			startY := -2
-			for _, y := range fenceLocsX[x] {
-				if y != startY+1 && startY != y {
+			slices.SortFunc(fenceLocsX[x], func(a, b Point) int {
+				return cmp.Compare(a.Y, b.Y)
+			})
+			prevPt := Point{Y: -2, X: -2}
+			for _, pt := range fenceLocsX[x] {
+				if pt.Y != prevPt.Y+1 || pt.X != prevPt.X {
 					sides++
 				}
-				startY = y
+				prevPt = pt
 			}
 		}
-		fmt.Println(area, sides)
 		return perimeter * area, sides * area, plotsVisited
 	}
 
@@ -109,15 +97,13 @@ func solve(grid Grid) (silver int, gold int) {
 	for pt := range GridIter(grid) {
 		if !plotsVisited[pt] {
 			cost, bulkCost, newPlotsVisited := surveyRegion(pt)
-			silver += cost
-			gold += bulkCost
+			silver, gold = silver+cost, gold+bulkCost
 			for k := range newPlotsVisited {
 				plotsVisited[k] = true
 			}
 		}
 	}
-
-	return
+	return silver, gold
 }
 
 func main() {

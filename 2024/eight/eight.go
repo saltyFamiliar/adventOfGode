@@ -25,7 +25,7 @@ func pointPairIter(locMap map[string][]Point) func(func(Point, Point) bool) {
 }
 
 func main() {
-	mat := GetGrid("input.txt")
+	mat := GridFrom("input.txt")
 	locMap := make(map[string][]Point)
 	for pt, ch := range GridIter(mat) {
 		if ch != "." {
