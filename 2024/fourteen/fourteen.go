@@ -3,8 +3,7 @@ package main
 import (
 	. "aoc_2024/utils"
 	"fmt"
-	"os"
-	"os/exec"
+	rl "github.com/gen2brain/raylib-go/raylib"
 	"slices"
 	"time"
 )
@@ -38,10 +37,15 @@ func (r *robot) move(grid [][][]robot) {
 }
 
 const (
-	HEIGHT = 103
-	WIDTH  = 101
+	HEIGHT         = 103
+	WIDTH          = 101
+	SCALE          = 12
+	RENDER_FPS     = 60
+	SIMULATION_FPS = 60
 	//HEIGHT = 7
 	//WIDTH  = 11
+	//HEIGHT = 800
+	//WIDTH  = 800
 )
 
 func printGrid(grid [][][]robot) {
@@ -71,40 +75,48 @@ func solve(lines []string) (silver, gold int) {
 		allRobots = append(allRobots, &r)
 		grid[py][px] = append(grid[py][px], r)
 	}
-	for t := 1; t < 10000; t++ {
-		for _, r := range allRobots {
-			r.move(grid)
+
+	var simulationIter int
+	for ; simulationIter < 7200; simulationIter++ {
+		for i := range allRobots {
+			allRobots[i].move(grid)
 		}
-		overlap := false
-		for _, row := range grid {
-			for _, robots := range row {
-				if len(robots) > 1 {
-					overlap = true
-					break
-				}
-			}
-			if overlap {
-				break
-			}
-		}
-		if overlap {
-			continue
-		}
-		//if t < 70 {
-		//	continue
-		//}
-		printGrid(grid)
-		if t == 70 {
-			break
-		}
-		fmt.Println(t)
-		time.Sleep(100 * time.Second)
-		c := exec.Command("clear")
-		c.Stdout = os.Stdout
-		c.Run()
 	}
 
-	//printGrid(grid)
+	rl.InitWindow(WIDTH*SCALE, HEIGHT*SCALE, "Robot Simulation")
+	rl.SetTargetFPS(RENDER_FPS)
+	defer rl.CloseWindow()
+	simulationInterval := float32(1.0 / SIMULATION_FPS)
+	var simulationTimer float32
+	for !rl.WindowShouldClose() {
+		simulationTimer += rl.GetFrameTime()
+		for simulationTimer >= simulationInterval {
+			for i := range allRobots {
+				allRobots[i].move(grid)
+			}
+			simulationTimer -= simulationInterval
+			simulationIter++
+		}
+		rl.BeginDrawing()
+		rl.ClearBackground(rl.Black)
+		for y, row := range grid {
+			for x, robots := range row {
+				if len(robots) == 1 {
+					rl.DrawCircle(int32(x*SCALE+SCALE/2), int32(y*SCALE+SCALE/2), float32(SCALE/3), rl.White)
+				} else if len(robots) == 2 {
+					rl.DrawCircle(int32(x*SCALE+SCALE/2), int32(y*SCALE+SCALE/2), float32(SCALE/3), rl.Green)
+				} else if len(robots) >= 3 {
+					rl.DrawCircle(int32(x*SCALE+SCALE/2), int32(y*SCALE+SCALE/2), float32(SCALE/3), rl.Red)
+				}
+			}
+		}
+		rl.DrawText(fmt.Sprintf("T = %d", simulationIter), 0, 0, 10, rl.White)
+		rl.EndDrawing()
+		if simulationIter == 7383 {
+			time.Sleep(10 * time.Second)
+		}
+	}
+
 	var ul, ur, dl, dr int
 	for _, r := range allRobots {
 		if r.px < (WIDTH/2) && r.py < (HEIGHT/2) {
@@ -117,6 +129,7 @@ func solve(lines []string) (silver, gold int) {
 			dr++
 		}
 	}
+
 	return ul * ur * dl * dr, gold
 }
 
