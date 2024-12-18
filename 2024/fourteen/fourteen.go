@@ -83,7 +83,7 @@ func solve(lines []string) (silver, gold int) {
 		}
 	}
 
-	rl.InitWindow(WIDTH*SCALE, HEIGHT*SCALE, "Robot Simulation")
+	rl.InitWindow(WIDTH*SCALE, HEIGHT*SCALE, "fourteen")
 	rl.SetTargetFPS(RENDER_FPS)
 	defer rl.CloseWindow()
 	simulationInterval := float32(1.0 / SIMULATION_FPS)
@@ -113,7 +113,8 @@ func solve(lines []string) (silver, gold int) {
 		rl.DrawText(fmt.Sprintf("T = %d", simulationIter), 0, 0, 10, rl.White)
 		rl.EndDrawing()
 		if simulationIter == 7383 {
-			time.Sleep(10 * time.Second)
+			time.Sleep(5 * time.Second)
+			rl.SetTargetFPS(RENDER_FPS)
 		}
 	}
 

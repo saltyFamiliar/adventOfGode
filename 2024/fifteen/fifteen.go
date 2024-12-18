@@ -54,20 +54,45 @@ func (r *robot) act(cmd string, grid [][]string) bool {
 	gridAt := func(pt Point) string {
 		return grid[pt.Y][pt.X]
 	}
-	searchPt := r.pt.AddPt(moveDir)
-	for ; gridAt(searchPt) != "."; searchPt = searchPt.AddPt(moveDir) {
-		if gridAt(searchPt) == "#" {
+	safeAdd := func(pts []Point, pt Point) []Point {
+		for _, p := range pts {
+			if p == pt {
+				return pts
+			}
+		}
+		return append(pts, pt)
+	}
+	searchPts := []Point{r.pt.AddPt(moveDir)}
+	//movePts := []Point{r.pt}
+	var movePts []Point
+	var sp Point
+	for len(searchPts) > 0 {
+		sp, searchPts = searchPts[0], searchPts[1:]
+		if gridAt(sp) == "#" {
 			return false
 		}
+		if gridAt(sp) == "." {
+			continue
+		}
+		newSp := sp.AddPt(moveDir)
+		searchPts = safeAdd(searchPts, newSp)
+		movePts = safeAdd(movePts, sp)
+		if gridAt(sp) == "O" {
+			continue
+		}
+		if gridAt(sp) == "[" && moveDir != LEFT {
+			searchPts = safeAdd(searchPts, newSp.AddPt(RIGHT))
+			movePts = safeAdd(movePts, sp.AddPt(RIGHT))
+		} else if gridAt(sp) == "]" && moveDir != RIGHT {
+			searchPts = safeAdd(searchPts, newSp.AddPt(LEFT))
+			movePts = safeAdd(movePts, sp.AddPt(LEFT))
+		}
 	}
-	invDir := Point{Y: -moveDir.Y, X: -moveDir.X}
-	spaces := Abs(searchPt.Y-r.pt.Y) + Abs(searchPt.X-r.pt.X)
-	for i := 0; i < spaces; i++ {
-		grid[searchPt.Y][searchPt.X],
-			grid[searchPt.Y+invDir.Y][searchPt.X+invDir.X] =
-			grid[searchPt.Y+invDir.Y][searchPt.X+invDir.X],
-			grid[searchPt.Y][searchPt.X]
-		searchPt = searchPt.AddPt(invDir)
+	for len(movePts) > 0 {
+		mp := movePts[len(movePts)-1]
+		movePts = movePts[:len(movePts)-1]
+		nxt := mp.AddPt(moveDir)
+		grid[mp.Y][mp.X], grid[nxt.Y][nxt.X] = grid[nxt.Y][nxt.X], grid[mp.Y][mp.X]
 	}
 	r.pt = r.pt.AddPt(moveDir)
 	return true
@@ -75,7 +100,7 @@ func (r *robot) act(cmd string, grid [][]string) bool {
 
 const (
 	SCALE     = 12
-	FPS       = 2
+	FPS       = 1200
 	unitSize  = int32(SCALE / 3)
 	unitSizeF = float32(unitSize)
 )
@@ -91,13 +116,13 @@ func render(grid [][]string, r robot) {
 			if ch == "#" {
 				rl.DrawCircle(centerX, centerY, unitSizeF, rl.White)
 			} else if ch == "O" {
-				rl.DrawCircle(centerX, centerY, unitSizeF, rl.Brown)
+				rl.DrawCircle(centerX, centerY, unitSizeF, rl.Green)
 			} else if x == int32(r.pt.X) && y == int32(r.pt.Y) {
 				rl.DrawCircle(centerX, centerY, unitSizeF, rl.Red)
 			} else if ch == "[" {
-				rl.DrawRectangle(xSc+SCALE/3, centerY, unitSize*2, unitSize, rl.Brown)
+				rl.DrawRectangle(xSc+SCALE/3, centerY, unitSize*2, unitSize, rl.Green)
 			} else if ch == "]" {
-				rl.DrawRectangle(xSc, centerY, unitSize*2, unitSize, rl.Brown)
+				rl.DrawRectangle(xSc, centerY, unitSize*2, unitSize, rl.Green)
 			}
 		}
 	}
@@ -109,10 +134,19 @@ func solve(grid [][]string, moves []string, r robot) (silver, gold int) {
 		render(grid, r)
 		r.act(moves[i], grid)
 	}
+	render(grid, r)
+	//time.Sleep(100 * time.Second)
 	for y, row := range grid {
 		for x, ch := range row {
-			if ch == "O" {
+			if ch == "O" || ch == "[" || ch == "]" {
 				silver += (100 * y) + x
+			}
+		}
+	}
+	for y, row := range grid {
+		for x, ch := range row {
+			if ch == "[" {
+				gold += (y * 100) + x
 			}
 		}
 	}
